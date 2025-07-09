@@ -1,0 +1,141 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Employee {
+  id            String        @id @default(cuid())
+  name          String
+  code          String        @unique
+  position      String
+  department    String
+  employeeGroup EmployeeGroup
+  basicSalary   Int           @default(0)
+  allowance     Int           @default(0)
+  currentLevel  String
+  isNewEmployee Boolean       @default(false)
+  isActive      Boolean       @default(true)
+  hireDate      DateTime      @default(now())
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  payrollData      PayrollData[]
+  commissionEntries DailyCommissionEntry[]
+
+  @@map("employees")
+}
+
+model PayrollData {
+  id                      String  @id @default(cuid())
+  employeeId              String
+  month                   String
+  dailyRevenue            Int     @default(0)
+  monthlyRevenue          Int     @default(0)
+  serviceRevenue          Int     @default(0)
+  productRevenue          Int     @default(0)
+  facialRevenue           Int     @default(0)
+  washingRevenue          Int     @default(0)
+  chemicalRevenue         Int     @default(0)
+  bleachingRevenue        Int     @default(0)
+  cuttingRevenue          Int     @default(0)
+  oilTreatmentRevenue     Int     @default(0)
+  keratinRevenue          Int     @default(0)
+  spaFootRevenue          Int     @default(0)
+  nailDesignRevenue       Int     @default(0)
+  eyebrowThreadingRevenue Int     @default(0)
+  kpiAchieved             Boolean @default(false)
+  kpiDetails              String  @default("{}")
+  bonus                   Int     @default(0)
+  penalty                 Int     @default(0)
+  advance                 Int     @default(0)
+  calculatedLevel         String
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, month])
+  @@map("payroll_data")
+}
+
+model DailyCommissionEntry {
+  id                    String      @id @default(cuid())
+  employeeId            String
+  date                  DateTime
+  serviceCode           String
+  serviceName           String
+  serviceGroup          String
+  serviceType           ServiceType
+  quantity              Int         @default(0)
+  timesPerformed        Int         @default(0)
+  timesSold             Int         @default(0)
+  revenueBeforeDiscount Int         @default(0)
+  revenueAfterDiscount  Int         @default(0)
+  commissionAmount      Int         @default(0)
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@map("daily_commission_entries")
+}
+
+model SystemSettings {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("system_settings")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  oldData   String?
+  newData   String?
+  createdAt DateTime @default(now())
+
+  @@map("audit_logs")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  USER
+}
+
+enum EmployeeGroup {
+  THO_PHU
+  THO_CHINH
+  RELAX
+  NAIL
+}
+
+enum ServiceType {
+  SERVICE
+  PRODUCT
+}

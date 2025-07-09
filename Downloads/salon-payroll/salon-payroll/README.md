@@ -68,7 +68,7 @@ brew install postgresql
 createdb salon_payroll
 
 # Update .env file
-DATABASE_URL="postgresql://username:password@localhost:5432/salon_payroll"
+DATABASE_URL="postgresql://salon_user:salon_password@localhost:5432/salon_payroll"
 \`\`\`
 
 ### SQLite (Development)
@@ -82,7 +82,7 @@ DATABASE_URL="file:./dev.db"
 ### Environment Variables
 \`\`\`env
 # Database
-DATABASE_URL="postgresql://username:password@localhost:5432/salon_payroll"
+DATABASE_URL="postgresql://salon_user:salon_password@localhost:5432/salon_payroll"
 
 # Authentication
 NEXTAUTH_URL="http://localhost:3000"
@@ -230,4 +230,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 Made with ❤️ for salon businesses
-# Deploy trigger
