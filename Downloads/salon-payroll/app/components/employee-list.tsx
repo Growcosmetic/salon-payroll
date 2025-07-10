@@ -22,18 +22,24 @@ import type { Employee } from "../types/payroll"
 import { useEffect } from "react"
 
 const positions = [
-  "Thợ chính",
-  "Thợ phụ",
-  "Kỹ thuật hóa chất",
-  "Thợ nail",
-  "Thợ facial",
-  "Thực tập sinh",
-  "Lễ tân",
-  "Thu ngân",
-  "Bảo vệ",
-  "Tạp vụ",
+  "Stylist",
+  "Nail Technician",
+  "Facial Specialist",
+  "Receptionist",
+  "Manager",
+  "Assistant",
+  "Trainee",
   "Tài xế",
   "Kế toán",
+  "Bảo vệ",
+  "Thợ phụ",
+  "Thợ chính",
+  "Nhân viên bán hàng",
+  "Nhân viên kho",
+  "Nhân viên vệ sinh",
+  "Nhân viên marketing",
+  "Nhân viên IT",
+  "Nhân viên nhân sự"
 ]
 
 const departments = ["Styling", "Nail", "Facial", "Front Office", "Support", "Management"]
@@ -109,21 +115,49 @@ export default function EmployeeList({ employees, onEmployeesChange }: EmployeeL
   }
 
   const getPositionColor = (position: string) => {
-    const colors: Record<string, string> = {
-      "Thợ chính": "bg-blue-100 text-blue-800",
-      "Thợ phụ": "bg-green-100 text-green-800",
-      "Kỹ thuật hóa chất": "bg-purple-100 text-purple-800",
-      "Thợ nail": "bg-pink-100 text-pink-800",
-      "Thợ facial": "bg-orange-100 text-orange-800",
-      "Thực tập sinh": "bg-gray-100 text-gray-800",
-      "Lễ tân": "bg-yellow-100 text-yellow-800",
-      "Thu ngân": "bg-indigo-100 text-indigo-800",
-      "Bảo vệ": "bg-red-100 text-red-800",
-      "Tạp vụ": "bg-teal-100 text-teal-800",
-      "Tài xế": "bg-cyan-100 text-cyan-800",
-      "Kế toán": "bg-emerald-100 text-emerald-800",
+    switch (position) {
+      case "Manager":
+        return "bg-purple-100 text-purple-800"
+      case "Stylist":
+      case "Thợ chính":
+        return "bg-blue-100 text-blue-800"
+      case "Nail Technician":
+      case "Thợ nail":
+        return "bg-pink-100 text-pink-800"
+      case "Facial Specialist":
+      case "Thợ facial":
+        return "bg-green-100 text-green-800"
+      case "Receptionist":
+      case "Lễ tân":
+        return "bg-yellow-100 text-yellow-800"
+      case "Assistant":
+      case "Thợ phụ":
+        return "bg-orange-100 text-orange-800"
+      case "Trainee":
+      case "Thực tập sinh":
+        return "bg-gray-100 text-gray-800"
+      case "Tài xế":
+        return "bg-indigo-100 text-indigo-800"
+      case "Kế toán":
+        return "bg-emerald-100 text-emerald-800"
+      case "Bảo vệ":
+        return "bg-red-100 text-red-800"
+      case "Nhân viên bán hàng":
+        return "bg-cyan-100 text-cyan-800"
+      case "Nhân viên kho":
+        return "bg-amber-100 text-amber-800"
+      case "Nhân viên vệ sinh":
+      case "Tạp vụ":
+        return "bg-slate-100 text-slate-800"
+      case "Nhân viên marketing":
+        return "bg-fuchsia-100 text-fuchsia-800"
+      case "Nhân viên IT":
+        return "bg-violet-100 text-violet-800"
+      case "Nhân viên nhân sự":
+        return "bg-rose-100 text-rose-800"
+      default:
+        return "bg-gray-100 text-gray-800"
     }
-    return colors[position] || "bg-gray-100 text-gray-800"
   }
 
   return (
