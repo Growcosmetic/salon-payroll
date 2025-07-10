@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Users, Calculator, TrendingUp, DollarSign } from "lucide-react"
@@ -313,9 +313,18 @@ const samplePayrollData: PayrollData[] = [
 ]
 
 export default function SalonPayrollSystem() {
-  const [employees, setEmployees] = useState<Employee[]>(sampleEmployees)
+  const [employees, setEmployees] = useState<Employee[]>([])
   const [payrollData, setPayrollData] = useState<PayrollData[]>(samplePayrollData)
   const [selectedMonth, setSelectedMonth] = useState("2024-01")
+
+  // Fetch employees from API
+  useEffect(() => {
+    fetch("/api/employees")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setEmployees(data)
+      })
+  }, [])
 
   const totalEmployees = employees.length
   const totalPayroll = payrollData.reduce((sum, data) => {

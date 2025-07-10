@@ -19,6 +19,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { Plus, Edit, Trash2 } from "lucide-react"
 import type { Employee } from "../types/payroll"
+import { useEffect } from "react"
 
 const positions = [
   "Thợ chính",
@@ -36,6 +37,8 @@ const positions = [
 ]
 
 const departments = ["Styling", "Nail", "Facial", "Front Office", "Support", "Management"]
+const employeeGroups = ["THỢ PHỤ", "THỢ CHÍNH", "RELAX", "NAIL"]
+const levels = ["THỢ MỚI", "DƯỚI TC", "TIÊU CHUẨN", "TARGET", "VƯỢT TARGET"]
 
 interface EmployeeListProps {
   employees: Employee[]
@@ -47,15 +50,18 @@ export default function EmployeeList({ employees, onEmployeesChange }: EmployeeL
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null)
   const [formData, setFormData] = useState<Partial<Employee>>({})
 
+  // Fetch employees from API
+  const fetchEmployees = async () => {
+    const res = await fetch("/api/employees")
+    const data = await res.json()
+    if (Array.isArray(data)) onEmployeesChange(data)
+  }
+
   const handleAddEmployee = () => {
     setEditingEmployee(null)
     setFormData({
       basicSalary: 0,
       allowance: 0,
-      serviceCommissionRate: 0,
-      productCommissionRate: 0,
-      kpiTarget: 0,
-      kpiBonus: 0,
     })
     setIsDialogOpen(true)
   }
@@ -66,9 +72,15 @@ export default function EmployeeList({ employees, onEmployeesChange }: EmployeeL
     setIsDialogOpen(true)
   }
 
-  const handleSaveEmployee = () => {
+  const handleSaveEmployee = async () => {
     if (!formData.name || !formData.code || !formData.position) return
 
+    // Nếu đang sửa thì gọi API update, nếu thêm mới thì gọi API POST
+    if (editingEmployee) {
+      // TODO: Implement update API if needed
+      // Hiện tại chỉ có POST, nên tạm thời xóa rồi thêm lại
+      await fetch(`/api/employees/${editingEmployee.id}`, { method: "DELETE" })
+    }
     const newEmployee: Employee = {
       id: editingEmployee?.id || Date.now().toString(),
       name: formData.name!,
@@ -77,24 +89,23 @@ export default function EmployeeList({ employees, onEmployeesChange }: EmployeeL
       department: formData.department || "",
       basicSalary: formData.basicSalary || 0,
       allowance: formData.allowance || 0,
-      serviceCommissionRate: formData.serviceCommissionRate || 0,
-      productCommissionRate: formData.productCommissionRate || 0,
-      kpiTarget: formData.kpiTarget || 0,
-      kpiBonus: formData.kpiBonus || 0,
+      employeeGroup: formData.employeeGroup as any || "THỢ PHỤ",
+      currentLevel: formData.currentLevel || "THỢ MỚI",
+      isNewEmployee: formData.isNewEmployee || false,
     }
-
-    if (editingEmployee) {
-      onEmployeesChange(employees.map((emp) => (emp.id === editingEmployee.id ? newEmployee : emp)))
-    } else {
-      onEmployeesChange([...employees, newEmployee])
-    }
-
+    await fetch("/api/employees", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newEmployee),
+    })
+    await fetchEmployees()
     setIsDialogOpen(false)
     setFormData({})
   }
 
-  const handleDeleteEmployee = (id: string) => {
-    onEmployeesChange(employees.filter((emp) => emp.id !== id))
+  const handleDeleteEmployee = async (id: string) => {
+    await fetch(`/api/employees/${id}`, { method: "DELETE" })
+    await fetchEmployees()
   }
 
   const getPositionColor = (position: string) => {
@@ -218,47 +229,55 @@ export default function EmployeeList({ employees, onEmployeesChange }: EmployeeL
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="serviceCommissionRate">Hoa hồng dịch vụ (%)</Label>
-                  <Input
-                    id="serviceCommissionRate"
-                    type="number"
-                    value={formData.serviceCommissionRate || ""}
-                    onChange={(e) => setFormData({ ...formData, serviceCommissionRate: Number(e.target.value) })}
-                    placeholder="10"
-                  />
+                  <Label htmlFor="employeeGroup">Nhóm nhân viên</Label>
+                  <Select
+                    value={formData.employeeGroup || ""}
+                    onValueChange={(value) => setFormData({ ...formData, employeeGroup: value as "THỢ PHỤ" | "THỢ CHÍNH" | "RELAX" | "NAIL" })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn nhóm" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {employeeGroups.map((group) => (
+                        <SelectItem key={group} value={group}>
+                          {group}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="productCommissionRate">Hoa hồng sản phẩm (%)</Label>
-                  <Input
-                    id="productCommissionRate"
-                    type="number"
-                    value={formData.productCommissionRate || ""}
-                    onChange={(e) => setFormData({ ...formData, productCommissionRate: Number(e.target.value) })}
-                    placeholder="5"
-                  />
+                  <Label htmlFor="currentLevel">Level hiện tại</Label>
+                  <Select
+                    value={formData.currentLevel || ""}
+                    onValueChange={(value) => setFormData({ ...formData, currentLevel: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {levels.map((level) => (
+                        <SelectItem key={level} value={level}>
+                          {level}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="kpiTarget">Mục tiêu KPI (VNĐ)</Label>
-                  <Input
-                    id="kpiTarget"
-                    type="number"
-                    value={formData.kpiTarget || ""}
-                    onChange={(e) => setFormData({ ...formData, kpiTarget: Number(e.target.value) })}
-                    placeholder="15000000"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="kpiBonus">Thưởng KPI (VNĐ)</Label>
-                  <Input
-                    id="kpiBonus"
-                    type="number"
-                    value={formData.kpiBonus || ""}
-                    onChange={(e) => setFormData({ ...formData, kpiBonus: Number(e.target.value) })}
-                    placeholder="1000000"
-                  />
+                  <Label htmlFor="isNewEmployee">Nhân viên mới</Label>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="isNewEmployee"
+                      checked={formData.isNewEmployee || false}
+                      onChange={(e) => setFormData({ ...formData, isNewEmployee: e.target.checked })}
+                      className="rounded"
+                    />
+                    <Label htmlFor="isNewEmployee" className="text-sm">Đánh dấu nếu là nhân viên mới</Label>
+                  </div>
                 </div>
               </div>
 
@@ -280,9 +299,11 @@ export default function EmployeeList({ employees, onEmployeesChange }: EmployeeL
               <TableHead>Họ tên</TableHead>
               <TableHead>Chức vụ</TableHead>
               <TableHead>Bộ phận</TableHead>
+              <TableHead>Nhóm</TableHead>
+              <TableHead>Level</TableHead>
               <TableHead>Lương cơ bản</TableHead>
-              <TableHead>Hoa hồng DV</TableHead>
-              <TableHead>Hoa hồng SP</TableHead>
+              <TableHead>Phụ cấp</TableHead>
+              <TableHead>Nhân viên mới</TableHead>
               <TableHead>Thao tác</TableHead>
             </TableRow>
           </TableHeader>
@@ -295,16 +316,36 @@ export default function EmployeeList({ employees, onEmployeesChange }: EmployeeL
                   <Badge className={getPositionColor(employee.position)}>{employee.position}</Badge>
                 </TableCell>
                 <TableCell>{employee.department}</TableCell>
+                <TableCell>
+                  <Badge variant="outline">{employee.employeeGroup}</Badge>
+                </TableCell>
+                <TableCell>
+                  <Badge variant="secondary">{employee.currentLevel}</Badge>
+                </TableCell>
                 <TableCell>{employee.basicSalary.toLocaleString("vi-VN")}đ</TableCell>
-                <TableCell>{employee.serviceCommissionRate}%</TableCell>
-                <TableCell>{employee.productCommissionRate}%</TableCell>
+                <TableCell>{employee.allowance.toLocaleString("vi-VN")}đ</TableCell>
+                <TableCell>
+                  {employee.isNewEmployee ? (
+                    <Badge variant="destructive">Mới</Badge>
+                  ) : (
+                    <span className="text-muted-foreground">-</span>
+                  )}
+                </TableCell>
                 <TableCell>
                   <div className="flex space-x-2">
-                    <Button variant="outline" size="sm" onClick={() => handleEditEmployee(employee)}>
-                      <Edit className="h-4 w-4" />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEditEmployee(employee)}
+                    >
+                      Sửa
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => handleDeleteEmployee(employee.id)}>
-                      <Trash2 className="h-4 w-4" />
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDeleteEmployee(employee.id)}
+                    >
+                      Xóa
                     </Button>
                   </div>
                 </TableCell>
