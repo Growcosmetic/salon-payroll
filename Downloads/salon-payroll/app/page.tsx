@@ -14,6 +14,7 @@ import EmployeeGroupSelector from "./components/employee-group-selector"
 import DailyCommissionTracker from "./components/daily-commission-tracker"
 import CommissionSummary from "./components/commission-summary"
 import TestDataGenerator from "./components/test-data-generator"
+import ExcelImportExport from "./components/excel-import-export"
 
 // Thêm nhiều dữ liệu mẫu để test
 
@@ -397,7 +398,7 @@ export default function SalonPayrollSystem() {
 
         {/* Main Content */}
         <Tabs defaultValue="payroll" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-9">
+          <TabsList className="grid w-full grid-cols-10">
             <TabsTrigger value="payroll">Bảng lương</TabsTrigger>
             <TabsTrigger value="employees">Nhân viên</TabsTrigger>
             <TabsTrigger value="data-entry">Nhập liệu</TabsTrigger>
@@ -405,6 +406,7 @@ export default function SalonPayrollSystem() {
             <TabsTrigger value="commission-summary">Tổng hợp HH</TabsTrigger>
             <TabsTrigger value="level-calc">Tính Level</TabsTrigger>
             <TabsTrigger value="groups">Nhóm NV</TabsTrigger>
+            <TabsTrigger value="excel">Excel</TabsTrigger>
             <TabsTrigger value="test-data">Test Data</TabsTrigger>
             <TabsTrigger value="reports">Báo cáo</TabsTrigger>
           </TabsList>
@@ -445,6 +447,10 @@ export default function SalonPayrollSystem() {
 
           <TabsContent value="groups">
             <EmployeeGroupSelector />
+          </TabsContent>
+
+          <TabsContent value="excel">
+            <ExcelImportExport />
           </TabsContent>
 
           <TabsContent value="test-data">

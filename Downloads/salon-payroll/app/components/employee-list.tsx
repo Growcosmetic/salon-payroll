@@ -63,6 +63,16 @@ export default function EmployeeList({ employees, onEmployeesChange }: EmployeeL
     if (Array.isArray(data)) onEmployeesChange(data)
   }
 
+  // Listen for import events
+  useEffect(() => {
+    const handleImport = () => {
+      fetchEmployees()
+    }
+    
+    window.addEventListener("employees-imported", handleImport)
+    return () => window.removeEventListener("employees-imported", handleImport)
+  }, [])
+
   const handleAddEmployee = () => {
     setEditingEmployee(null)
     setFormData({
