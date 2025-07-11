@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Edit, Trash2 } from "lucide-react"
+import { Plus, Edit, Trash2, Users, Search, Filter } from "lucide-react"
 import type { Employee } from "../types/payroll"
 import { useEffect } from "react"
 
@@ -55,6 +55,8 @@ export default function EmployeeList({ employees, onEmployeesChange }: EmployeeL
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null)
   const [formData, setFormData] = useState<Partial<Employee>>({})
+  const [searchTerm, setSearchTerm] = useState("")
+  const [filterGroup, setFilterGroup] = useState("")
 
   // Fetch employees from API
   const fetchEmployees = async () => {
@@ -170,234 +172,279 @@ export default function EmployeeList({ employees, onEmployeesChange }: EmployeeL
     }
   }
 
+  // Filter employees
+  const filteredEmployees = employees.filter(employee => {
+    const matchesSearch = employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         employee.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         employee.position.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesGroup = !filterGroup || employee.employeeGroup === filterGroup
+    return matchesSearch && matchesGroup
+  })
+
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <div>
-            <CardTitle>Danh sách nhân viên</CardTitle>
-            <CardDescription>Quản lý thông tin nhân viên và mức lương</CardDescription>
-          </div>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={handleAddEmployee}>
-                <Plus className="h-4 w-4 mr-2" />
-                Thêm nhân viên
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>{editingEmployee ? "Chỉnh sửa nhân viên" : "Thêm nhân viên mới"}</DialogTitle>
-                <DialogDescription>Nhập thông tin chi tiết của nhân viên</DialogDescription>
-              </DialogHeader>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <Users className="h-6 w-6 text-blue-600" />
+            Danh sách nhân viên
+          </h2>
+          <p className="text-gray-600">Quản lý thông tin nhân viên và mức lương</p>
+        </div>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button onClick={handleAddEmployee} className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700">
+              <Plus className="h-4 w-4 mr-2" />
+              Thêm nhân viên
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="text-xl">{editingEmployee ? "Chỉnh sửa nhân viên" : "Thêm nhân viên mới"}</DialogTitle>
+              <DialogDescription>Nhập thông tin chi tiết của nhân viên</DialogDescription>
+            </DialogHeader>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Họ tên *</Label>
-                  <Input
-                    id="name"
-                    value={formData.name || ""}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Nhập họ tên"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="code">Mã nhân viên *</Label>
-                  <Input
-                    id="code"
-                    value={formData.code || ""}
-                    onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                    placeholder="NV001"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="position">Chức vụ *</Label>
-                  <Select
-                    value={formData.position || ""}
-                    onValueChange={(value) => setFormData({ ...formData, position: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Chọn chức vụ" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {positions.map((position) => (
-                        <SelectItem key={position} value={position}>
-                          {position}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="department">Bộ phận</Label>
-                  <Select
-                    value={formData.department || ""}
-                    onValueChange={(value) => setFormData({ ...formData, department: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Chọn bộ phận" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {departments.map((dept) => (
-                        <SelectItem key={dept} value={dept}>
-                          {dept}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="basicSalary">Lương cơ bản (VNĐ)</Label>
-                  <Input
-                    id="basicSalary"
-                    type="number"
-                    value={formData.basicSalary || ""}
-                    onChange={(e) => setFormData({ ...formData, basicSalary: Number(e.target.value) })}
-                    placeholder="5000000"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="allowance">Phụ cấp (VNĐ)</Label>
-                  <Input
-                    id="allowance"
-                    type="number"
-                    value={formData.allowance || ""}
-                    onChange={(e) => setFormData({ ...formData, allowance: Number(e.target.value) })}
-                    placeholder="500000"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="employeeGroup">Nhóm nhân viên</Label>
-                  <Select
-                    value={formData.employeeGroup || ""}
-                    onValueChange={(value) => setFormData({ ...formData, employeeGroup: value as "THỢ PHỤ" | "THỢ CHÍNH" | "RELAX" | "NAIL" })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Chọn nhóm" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {employeeGroups.map((group) => (
-                        <SelectItem key={group} value={group}>
-                          {group}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="currentLevel">Level hiện tại</Label>
-                  <Select
-                    value={formData.currentLevel || ""}
-                    onValueChange={(value) => setFormData({ ...formData, currentLevel: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Chọn level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {levels.map((level) => (
-                        <SelectItem key={level} value={level}>
-                          {level}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="isNewEmployee">Nhân viên mới</Label>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="isNewEmployee"
-                      checked={formData.isNewEmployee || false}
-                      onChange={(e) => setFormData({ ...formData, isNewEmployee: e.target.checked })}
-                      className="rounded"
-                    />
-                    <Label htmlFor="isNewEmployee" className="text-sm">Đánh dấu nếu là nhân viên mới</Label>
-                  </div>
-                </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Họ tên *</Label>
+                <Input
+                  id="name"
+                  value={formData.name || ""}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="Nhập họ tên"
+                />
               </div>
 
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  Hủy
-                </Button>
-                <Button onClick={handleSaveEmployee}>{editingEmployee ? "Cập nhật" : "Thêm mới"}</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Mã NV</TableHead>
-              <TableHead>Họ tên</TableHead>
-              <TableHead>Chức vụ</TableHead>
-              <TableHead>Bộ phận</TableHead>
-              <TableHead>Nhóm</TableHead>
-              <TableHead>Level</TableHead>
-              <TableHead>Lương cơ bản</TableHead>
-              <TableHead>Phụ cấp</TableHead>
-              <TableHead>Nhân viên mới</TableHead>
-              <TableHead>Thao tác</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {employees.map((employee) => (
-              <TableRow key={employee.id}>
-                <TableCell className="font-medium">{employee.code}</TableCell>
-                <TableCell>{employee.name}</TableCell>
-                <TableCell>
-                  <Badge className={getPositionColor(employee.position)}>{employee.position}</Badge>
-                </TableCell>
-                <TableCell>{employee.department}</TableCell>
-                <TableCell>
-                  <Badge variant="outline">{employee.employeeGroup}</Badge>
-                </TableCell>
-                <TableCell>
-                  <Badge variant="secondary">{employee.currentLevel}</Badge>
-                </TableCell>
-                <TableCell>{employee.basicSalary.toLocaleString("vi-VN")}đ</TableCell>
-                <TableCell>{employee.allowance.toLocaleString("vi-VN")}đ</TableCell>
-                <TableCell>
-                  {employee.isNewEmployee ? (
-                    <Badge variant="destructive">Mới</Badge>
-                  ) : (
-                    <span className="text-muted-foreground">-</span>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <div className="flex space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEditEmployee(employee)}
-                    >
-                      Sửa
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDeleteEmployee(employee.id)}
-                    >
-                      Xóa
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+              <div className="space-y-2">
+                <Label htmlFor="code">Mã nhân viên *</Label>
+                <Input
+                  id="code"
+                  value={formData.code || ""}
+                  onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                  placeholder="Nhập mã nhân viên"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="position">Chức vụ *</Label>
+                <Select value={formData.position} onValueChange={(value) => setFormData({ ...formData, position: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn chức vụ" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {positions.map((position) => (
+                      <SelectItem key={position} value={position}>
+                        {position}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="department">Bộ phận</Label>
+                <Select value={formData.department} onValueChange={(value) => setFormData({ ...formData, department: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn bộ phận" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departments.map((dept) => (
+                      <SelectItem key={dept} value={dept}>
+                        {dept}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="employeeGroup">Nhóm</Label>
+                <Select value={formData.employeeGroup} onValueChange={(value) => setFormData({ ...formData, employeeGroup: value as "THỢ PHỤ" | "THỢ CHÍNH" | "RELAX" | "NAIL" })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn nhóm" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {employeeGroups.map((group) => (
+                      <SelectItem key={group} value={group}>
+                        {group}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="currentLevel">Level</Label>
+                <Select value={formData.currentLevel} onValueChange={(value) => setFormData({ ...formData, currentLevel: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {levels.map((level) => (
+                      <SelectItem key={level} value={level}>
+                        {level}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="basicSalary">Lương cơ bản</Label>
+                <Input
+                  id="basicSalary"
+                  type="number"
+                  value={formData.basicSalary || ""}
+                  onChange={(e) => setFormData({ ...formData, basicSalary: Number(e.target.value) })}
+                  placeholder="Nhập lương cơ bản"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="allowance">Phụ cấp</Label>
+                <Input
+                  id="allowance"
+                  type="number"
+                  value={formData.allowance || ""}
+                  onChange={(e) => setFormData({ ...formData, allowance: Number(e.target.value) })}
+                  placeholder="Nhập phụ cấp"
+                />
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                Hủy
+              </Button>
+              <Button onClick={handleSaveEmployee} className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700">
+                {editingEmployee ? "Cập nhật" : "Thêm nhân viên"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* Search and Filter */}
+      <Card className="bg-gradient-to-r from-gray-50 to-blue-50 border-blue-200">
+        <CardContent className="p-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="Tìm kiếm theo tên, mã, chức vụ..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-gray-500" />
+              <Select value={filterGroup} onValueChange={setFilterGroup}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Lọc theo nhóm" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Tất cả nhóm</SelectItem>
+                  {employeeGroups.map((group) => (
+                    <SelectItem key={group} value={group}>
+                      {group}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Employee Table */}
+      <Card className="shadow-lg border-0">
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span>Danh sách nhân viên ({filteredEmployees.length})</span>
+            <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+              {employees.length} tổng cộng
+            </Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-lg border overflow-hidden">
+            <Table>
+              <TableHeader className="bg-gray-50">
+                <TableRow>
+                  <TableHead className="font-semibold">Thông tin</TableHead>
+                  <TableHead className="font-semibold">Chức vụ</TableHead>
+                  <TableHead className="font-semibold">Nhóm</TableHead>
+                  <TableHead className="font-semibold">Level</TableHead>
+                  <TableHead className="font-semibold">Lương</TableHead>
+                  <TableHead className="font-semibold text-right">Thao tác</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredEmployees.map((employee) => (
+                  <TableRow key={employee.id} className="hover:bg-gray-50">
+                    <TableCell>
+                      <div>
+                        <div className="font-semibold text-gray-900">{employee.name}</div>
+                        <div className="text-sm text-gray-500">{employee.code}</div>
+                        <div className="text-xs text-gray-400">{employee.department}</div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={getPositionColor(employee.position)}>
+                        {employee.position}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="border-blue-200 text-blue-700">
+                        {employee.employeeGroup}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="border-green-200 text-green-700">
+                        {employee.currentLevel}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="text-sm font-medium">
+                          {employee.basicSalary.toLocaleString("vi-VN")}đ
+                        </div>
+                        {employee.allowance > 0 && (
+                          <div className="text-xs text-gray-500">
+                            +{employee.allowance.toLocaleString("vi-VN")}đ phụ cấp
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditEmployee(employee)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteEmployee(employee.id)}
+                          className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   )
 }

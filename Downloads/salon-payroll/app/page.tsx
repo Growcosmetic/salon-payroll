@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Users, Calculator, TrendingUp, DollarSign } from "lucide-react"
+import { Users, Calculator, TrendingUp, DollarSign, Building2, Target, Clock, BarChart3 } from "lucide-react"
 import EmployeeList from "./components/employee-list"
 import PayrollCalculation from "./components/payroll-calculation"
 import DataEntry from "./components/data-entry"
@@ -339,133 +339,185 @@ export default function SalonPayrollSystem() {
     return sum + netPay
   }, 0)
 
+  const kpiAchievedCount = payrollData.filter((data) => data.kpiAchieved).length
+  const kpiTotalCount = payrollData.length
+  const kpiPercentage = kpiTotalCount > 0 ? Math.round((kpiAchievedCount / kpiTotalCount) * 100) : 0
+
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Hệ thống tính lương Salon</h1>
-          <p className="text-gray-600">Quản lý lương và hoa hồng cho nhân viên salon</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <div className="max-w-7xl mx-auto p-6">
+        {/* Header */}
+        <div className="mb-8 text-center">
+          <div className="flex justify-center mb-4">
+            <div className="p-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl shadow-lg">
+              <Building2 className="h-8 w-8 text-white" />
+            </div>
+          </div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+            Hệ thống tính lương Salon
+          </h1>
+          <p className="text-gray-600 text-lg">Quản lý lương và hoa hồng cho nhân viên salon</p>
         </div>
 
         {/* Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 hover:shadow-lg transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Tổng nhân viên</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalEmployees}</div>
-              <p className="text-xs text-muted-foreground">Đang hoạt động</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Tổng lương tháng</CardTitle>
-              <Calculator className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalPayroll.toLocaleString("vi-VN")}đ</div>
-              <p className="text-xs text-muted-foreground">Tháng {selectedMonth}</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Đạt KPI</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {payrollData.filter((data) => data.kpiAchieved).length}/{payrollData.length}
+              <CardTitle className="text-sm font-medium text-blue-700">Tổng nhân viên</CardTitle>
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Users className="h-5 w-5 text-blue-600" />
               </div>
-              <p className="text-xs text-muted-foreground">Nhân viên đạt KPI</p>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-blue-800">{totalEmployees}</div>
+              <p className="text-xs text-blue-600">Đang hoạt động</p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 hover:shadow-lg transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Hoa hồng hôm nay</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-green-700">Tổng lương tháng</CardTitle>
+              <div className="p-2 bg-green-100 rounded-lg">
+                <Calculator className="h-5 w-5 text-green-600" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">1.568.000đ</div>
-              <p className="text-xs text-muted-foreground">+8% so với hôm qua</p>
+              <div className="text-3xl font-bold text-green-800">{totalPayroll.toLocaleString("vi-VN")}đ</div>
+              <p className="text-xs text-green-600">Tháng {selectedMonth}</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 hover:shadow-lg transition-all duration-300">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-orange-700">Đạt KPI</CardTitle>
+              <div className="p-2 bg-orange-100 rounded-lg">
+                <Target className="h-5 w-5 text-orange-600" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-orange-800">{kpiAchievedCount}/{kpiTotalCount}</div>
+              <p className="text-xs text-orange-600">{kpiPercentage}% đạt KPI</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 hover:shadow-lg transition-all duration-300">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-purple-700">Hoa hồng hôm nay</CardTitle>
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <DollarSign className="h-5 w-5 text-purple-600" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-purple-800">1.568.000đ</div>
+              <p className="text-xs text-purple-600">+8% so với hôm qua</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Main Content */}
-        <Tabs defaultValue="payroll" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-10">
-            <TabsTrigger value="payroll">Bảng lương</TabsTrigger>
-            <TabsTrigger value="employees">Nhân viên</TabsTrigger>
-            <TabsTrigger value="data-entry">Nhập liệu</TabsTrigger>
-            <TabsTrigger value="daily-commission">HH Hàng ngày</TabsTrigger>
-            <TabsTrigger value="commission-summary">Tổng hợp HH</TabsTrigger>
-            <TabsTrigger value="level-calc">Tính Level</TabsTrigger>
-            <TabsTrigger value="groups">Nhóm NV</TabsTrigger>
-            <TabsTrigger value="excel">Excel</TabsTrigger>
-            <TabsTrigger value="test-data">Test Data</TabsTrigger>
-            <TabsTrigger value="reports">Báo cáo</TabsTrigger>
-          </TabsList>
+        <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+          <CardContent className="p-6">
+            <Tabs defaultValue="payroll" className="space-y-6">
+              <TabsList className="grid w-full grid-cols-10 bg-gray-100 p-1 rounded-lg">
+                <TabsTrigger value="payroll" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  Bảng lương
+                </TabsTrigger>
+                <TabsTrigger value="employees" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                  <Users className="h-4 w-4 mr-2" />
+                  Nhân viên
+                </TabsTrigger>
+                <TabsTrigger value="data-entry" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                  <Calculator className="h-4 w-4 mr-2" />
+                  Nhập liệu
+                </TabsTrigger>
+                <TabsTrigger value="daily-commission" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                  <Clock className="h-4 w-4 mr-2" />
+                  HH Hàng ngày
+                </TabsTrigger>
+                <TabsTrigger value="commission-summary" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                  <DollarSign className="h-4 w-4 mr-2" />
+                  Tổng hợp HH
+                </TabsTrigger>
+                <TabsTrigger value="level-calc" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                  <Target className="h-4 w-4 mr-2" />
+                  Tính Level
+                </TabsTrigger>
+                <TabsTrigger value="groups" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                  <Building2 className="h-4 w-4 mr-2" />
+                  Nhóm NV
+                </TabsTrigger>
+                <TabsTrigger value="excel" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  Excel
+                </TabsTrigger>
+                <TabsTrigger value="test-data" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                  <Target className="h-4 w-4 mr-2" />
+                  Test Data
+                </TabsTrigger>
+                <TabsTrigger value="reports" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  Báo cáo
+                </TabsTrigger>
+              </TabsList>
 
-          <TabsContent value="payroll">
-            <PayrollCalculation
-              employees={employees}
-              payrollData={payrollData}
-              selectedMonth={selectedMonth}
-              onMonthChange={setSelectedMonth}
-            />
-          </TabsContent>
+              <TabsContent value="payroll" className="space-y-4">
+                <PayrollCalculation
+                  employees={employees}
+                  payrollData={payrollData}
+                  selectedMonth={selectedMonth}
+                  onMonthChange={setSelectedMonth}
+                />
+              </TabsContent>
 
-          <TabsContent value="employees">
-            <EmployeeList employees={employees} onEmployeesChange={setEmployees} />
-          </TabsContent>
+              <TabsContent value="employees" className="space-y-4">
+                <EmployeeList employees={employees} onEmployeesChange={setEmployees} />
+              </TabsContent>
 
-          <TabsContent value="data-entry">
-            <DataEntry
-              employees={employees}
-              payrollData={payrollData}
-              onPayrollDataChange={setPayrollData}
-              selectedMonth={selectedMonth}
-            />
-          </TabsContent>
+              <TabsContent value="data-entry" className="space-y-4">
+                <DataEntry
+                  employees={employees}
+                  payrollData={payrollData}
+                  onPayrollDataChange={setPayrollData}
+                  selectedMonth={selectedMonth}
+                />
+              </TabsContent>
 
-          <TabsContent value="daily-commission">
-            <DailyCommissionTracker employees={employees} />
-          </TabsContent>
+              <TabsContent value="daily-commission" className="space-y-4">
+                <DailyCommissionTracker employees={employees} />
+              </TabsContent>
 
-          <TabsContent value="commission-summary">
-            <CommissionSummary employees={employees} />
-          </TabsContent>
+              <TabsContent value="commission-summary" className="space-y-4">
+                <CommissionSummary employees={employees} />
+              </TabsContent>
 
-          <TabsContent value="level-calc">
-            <LevelCalculator />
-          </TabsContent>
+              <TabsContent value="level-calc" className="space-y-4">
+                <LevelCalculator />
+              </TabsContent>
 
-          <TabsContent value="groups">
-            <EmployeeGroupSelector />
-          </TabsContent>
+              <TabsContent value="groups" className="space-y-4">
+                <EmployeeGroupSelector />
+              </TabsContent>
 
-          <TabsContent value="excel">
-            <ExcelImportExport />
-          </TabsContent>
+              <TabsContent value="excel" className="space-y-4">
+                <ExcelImportExport />
+              </TabsContent>
 
-          <TabsContent value="test-data">
-            <TestDataGenerator
-              employees={employees}
-              payrollData={payrollData}
-              onEmployeesChange={setEmployees}
-              onPayrollDataChange={setPayrollData}
-            />
-          </TabsContent>
+              <TabsContent value="test-data" className="space-y-4">
+                <TestDataGenerator
+                  employees={employees}
+                  payrollData={payrollData}
+                  onEmployeesChange={setEmployees}
+                  onPayrollDataChange={setPayrollData}
+                />
+              </TabsContent>
 
-          <TabsContent value="reports">
-            <Reports employees={employees} payrollData={payrollData} />
-          </TabsContent>
-        </Tabs>
+              <TabsContent value="reports" className="space-y-4">
+                <Reports employees={employees} payrollData={payrollData} />
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
